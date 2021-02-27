@@ -5,14 +5,17 @@ using SeleniumExtras.WaitHelpers;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ConsoleSeleniumCovidResultParser
 {
     class WebDriverResultGrabber
     {
-        public string getResult(string code = "QRNJZEWDN8TGDTJD", string dob = "03/16/1984")
+        public async Task<string> getResultAsync(string code = "QRNJZEWDN8TGDTJD", string dob = "03/16/1984")
         {
-            using ChromeDriver driver = new ChromeDriver();
+            var chromeOptions = new ChromeOptions();
+            chromeOptions.AddArguments("headless");
+            using ChromeDriver driver = new ChromeDriver(chromeOptions);
 
             string result;
             try
@@ -30,11 +33,29 @@ namespace ConsoleSeleniumCovidResultParser
                 var button = driver.FindElement(By.TagName("Button"));
                 button.Click();
 
-                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
-                wait.Until(ExpectedConditions.ElementExists(By.Id("result-card")));
+                //WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
+                //wait.Until(ExpectedConditions.ElementExists(By.Id("result-card")));
+                await Task.Delay(TimeSpan.FromSeconds(3));
 
-                var resultCard = driver.FindElement(By.Id("result-card"));
-                result = resultCard.Text;
+                string resultCard = "";
+                try
+                {
+                    resultCard = driver.FindElement(By.Id("result-card")).ToString();
+                    Console.WriteLine(DateTime.Now + " Found a result card!\n" + resultCard.ToString());
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(DateTime.Now + " Error: " + e.Message);
+                }
+                
+                if(resultCard != "")
+                {
+                    result = driver.PageSource;
+                }
+                else
+                {
+                    result = resultCard.ToString();
+                }
 
             }
             finally
