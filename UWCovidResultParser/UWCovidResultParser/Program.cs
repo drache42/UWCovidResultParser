@@ -11,10 +11,11 @@ namespace UWCovidResultParser
         {
             HttpClient client = new HttpClient();
 
+            // These values return a real result
             var values = new Dictionary<string, string>
             {
-                { "barcode", "L8WQAQGLEKYH8ZT8" },
-                { "dob", "02/07/2020" }
+                { "barcode", "QRNJZEWDN8TGDTJD" },
+                { "dob", "03/16/1984" }
             };
 
             var content = new FormUrlEncodedContent(values);
