@@ -15,7 +15,7 @@ namespace ConsoleSeleniumCovidResultParser
 {
     class GmailSender
     {
-        public void sendEmail(string to, string from, string subject, string body)
+        public void sendEmail(string to, string from, string subject, string body, bool isHtml = true)
         {
             // If modifying these scopes, delete your previously saved credentials
             // at ~/.credentials/gmail-dotnet-quickstart.json
@@ -46,20 +46,20 @@ namespace ConsoleSeleniumCovidResultParser
                 ApplicationName = ApplicationName,
             });
 
-            var message = createEmail(to, from, subject, body);
+            var message = createEmail(to, from, subject, body, isHtml);
 
             Google.Apis.Gmail.v1.UsersResource.MessagesResource.SendRequest request = service.Users.Messages.Send(message, from);
 
             request.Execute();
         }
 
-        protected Message createEmail(string to, string from, string subject, string body)
+        protected Message createEmail(string to, string from, string subject, string body, bool isHtml = true)
         {
             MailMessage m = new MailMessage(from, to)
             {
                 Subject = subject,
                 Body = body,
-                IsBodyHtml = true
+                IsBodyHtml = isHtml
             };
 
             var mimeMessage = MimeKit.MimeMessage.CreateFromMailMessage(m);

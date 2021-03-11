@@ -11,13 +11,21 @@ namespace ConsoleSeleniumCovidResultParser
 {
     class WebDriverResultGrabber
     {
-        public async Task<string> getResultAsync(string code = "QRNJZEWDN8TGDTJD", string dob = "03/16/1984")
+        public class WebDriverResultGrabberResult
+        {
+            public string Result { get; set; }
+            public bool isHtml { get; set; }
+        }
+
+        public async Task<WebDriverResultGrabberResult> GetResultAsync(string code, string dob)
         {
             var chromeOptions = new ChromeOptions();
             chromeOptions.AddArguments("headless");
             using ChromeDriver driver = new ChromeDriver(chromeOptions);
 
-            string result;
+            string textResult;
+            WebDriverResultGrabberResult result = new WebDriverResultGrabberResult();
+
             try
             {
                 string url = $"https://securelink.labmed.uw.edu/?code={code}";
@@ -40,7 +48,7 @@ namespace ConsoleSeleniumCovidResultParser
                 string resultCard = "";
                 try
                 {
-                    resultCard = driver.FindElement(By.Id("result-card")).ToString();
+                    resultCard = driver.FindElement(By.Id("result-card")).Text;
                     Console.WriteLine(DateTime.Now + " Found a result card!\n" + resultCard.ToString());
                 }
                 catch(Exception e)
@@ -48,13 +56,15 @@ namespace ConsoleSeleniumCovidResultParser
                     Console.WriteLine(DateTime.Now + " Error: " + e.Message);
                 }
                 
-                if(resultCard != "")
+                if(resultCard == "")
                 {
-                    result = driver.PageSource;
+                    result.Result = driver.PageSource;
+                    result.isHtml = true;
                 }
                 else
                 {
-                    result = resultCard.ToString();
+                    result.Result = resultCard;
+                    result.isHtml = false;
                 }
 
             }

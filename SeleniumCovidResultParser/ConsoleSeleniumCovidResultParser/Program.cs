@@ -3,6 +3,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ConsoleSeleniumCovidResultParser
@@ -11,22 +12,35 @@ namespace ConsoleSeleniumCovidResultParser
     {
         static async Task Main(string[] args)
         {
+            List<string> emailToNotify = new List<string>()
+            {
+                "drache42@gmail.com",
+                "audreydb13@gmail.com"
+            };
+
+            string code = "G39AQYXA7P2PG32a";
+            string dob = "08/23/2017";
+
             string result = "";
             while(true)
             {
                 var driver = new WebDriverResultGrabber();
-                var newresult = await driver.getResultAsync("L8WQAQGLEKYH8ZT8", "02/07/2020");
+                var newresult = await driver.GetResultAsync(code, dob);
 
-                if(result != newresult)
+                if(result != newresult.Result)
                 {
                     Console.WriteLine(DateTime.Now + " Results are different!");
                     string subject = "UW Covid Result UPDATE " + DateTime.Now.ToString();
-                    result = newresult;
+                    result = newresult.Result;
 
                     Console.WriteLine(DateTime.Now + " " + result);
 
-                    var email = new GmailSender();
-                    email.sendEmail("drache42@gmail.com", "drache42@gmail.com", subject, result);
+                    var emailer = new GmailSender();
+                    foreach(string email in emailToNotify)
+                    {
+                        emailer.sendEmail(email, "drache42@gmail.com", subject, result, newresult.isHtml);
+                    }
+                    
                 }
                 else
                 {
